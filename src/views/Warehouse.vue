@@ -1,11 +1,20 @@
 <template>
   <el-card class="transport-container">
-    <!--    <template #header>-->
-    <!--&lt;!&ndash;      <div class="header">&ndash;&gt;-->
-    <!--&lt;!&ndash;        <el-button type="primary" :icon="Plus" @click="handleSolve">解除禁用</el-button>&ndash;&gt;-->
-    <!--&lt;!&ndash;        <el-button type="danger" :icon="Delete" @click="handleForbid">禁用账户</el-button>&ndash;&gt;-->
-    <!--&lt;!&ndash;      </div>&ndash;&gt;-->
-    <!--    </template>-->
+    <template #header>
+      <div class="header">
+        <!--        <el-button type="primary" :icon="Plus" @click="handleSolve">解除禁用</el-button>-->
+        <!--        <el-button type="danger" :icon="Delete" @click="handleForbid">禁用账户</el-button>-->
+        <el-input
+            style="width: 200px; margin-right: 10px"
+            placeholder="请输入仓库号"
+            v-model="state.key"
+            @change="handleOption"
+            clearable
+        />
+        <el-button type="primary" icon="el-icon-edit" @click="searchById">查询仓库</el-button>
+        <el-button type="danger" icon="el-icon-edit" @click="deleteById">删除仓库</el-button>
+      </div>
+    </template>
     <el-table
         :load="state.loading"
         :data="state.tableData"
@@ -19,16 +28,16 @@
       </el-table-column>
       <el-table-column
           prop="id"
-          label="货架号"
+          label="仓库号"
       >
       </el-table-column>
       <el-table-column
-          prop="warehouse.name"
+          prop="name"
           label="仓库名"
       >
       </el-table-column>
       <el-table-column
-          prop="warehouse.position"
+          prop="position"
           label="仓库位置"
       >
         <!--          <template #default="scope">-->
@@ -75,7 +84,7 @@ onMounted(() => {
 // 获取轮播图列表
 const getGoodList = () => {
   state.loading = true
-  axios.get('/shelve/search', {
+  axios.get('/warehouse/search', {
     params: {
       pageNumber: state.currentPage,
       pageSize: state.pageSize

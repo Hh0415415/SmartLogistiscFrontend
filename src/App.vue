@@ -41,7 +41,7 @@
               <span>仓储管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="/category"><el-icon><Menu /></el-icon>仓库管理</el-menu-item>
+              <el-menu-item index="/warehouse"><el-icon><Menu /></el-icon>仓库管理</el-menu-item>
               <el-menu-item index="/shelf"><el-icon><Goods /></el-icon>货架管理</el-menu-item>
               <el-menu-item index="/transport"><el-icon><User /></el-icon>库存管理</el-menu-item>
               <el-menu-item index="/order"><el-icon><List /></el-icon>暂无</el-menu-item>
@@ -52,7 +52,8 @@
               <span>运输管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="/account"><el-icon><Lock /></el-icon>作业管理</el-menu-item>
+              <el-menu-item index="/Car"><el-icon><StarFilled /></el-icon>车辆管理</el-menu-item>
+              <el-menu-item index="/account"><el-icon><StarFilled /></el-icon>作业管理</el-menu-item>
               <el-menu-item index="/transport"><el-icon><StarFilled /></el-icon>运输追踪</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
@@ -75,7 +76,7 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-//import Header from '@/components/Header.vue'
+import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import { localGet, pathMap } from '@/utils'
 
@@ -86,11 +87,11 @@ const state = reactive({
   defaultOpen: ['1', '2', '3', '4'],
   currentPath: '/',
 })
-
+//跳转后是否展示菜单。
 router.afterEach((to, from) => {
   state.showMenu = !noMenu.includes(to.path)
 })
-
+//跳转前判断登录状态。
 router.beforeEach((to, from, next) => {
   if (to.path == '/login') {
     // 如果路径是 /login 则正常执行

@@ -30,6 +30,7 @@ import axios from '@/utils/axios'
 import md5 from 'js-md5'
 import { reactive, ref } from 'vue'
 import { localSet } from '@/utils'
+import {ElMessage} from "element-plus";
 const loginForm = ref(null)
 const state = reactive({
   ruleForm: {
@@ -49,13 +50,15 @@ const state = reactive({
 const submitForm = async () => {
   loginForm.value.validate((valid) => {
     if (valid) {
-      axios.post('/adminUser/login', {
-        userName: state.ruleForm.username || '',
-        passwordMd5: md5(state.ruleForm.password)
-      }).then(res => {
-        localSet('token', res)
-        window.location.href = '/'
-      })
+      var params = new URLSearchParams();
+      params.append('username', state.ruleForm.username || '');
+      params.append('password', state.ruleForm.password);
+      axios.post('/login', params).then(
+          ElMessage.success('登录成功'),
+          localSet('token', state.ruleForm.username + state.ruleForm.password),
+         window.location.href = '/').catch(
+          ElMessage.warning('登录失败'),
+          router.push({ path: '/login' }))
     } else {
       console.log('error submit!!')
       return false;

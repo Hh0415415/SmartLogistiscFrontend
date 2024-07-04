@@ -1,9 +1,11 @@
 <template>
   <div class="header">
+<!--    左边信息-->
     <div class="left">
       <el-icon class="back" v-if="state.hasBack" @click="back"><Back /></el-icon>
       <span style="font-size: 20px">{{ state.name }}</span>
     </div>
+<!--右边信息-->
     <div class="right">
       <el-popover
         placement="bottom"
@@ -20,7 +22,6 @@
         </template>
         <div class="nickname">
           <p>登录名：{{ state.userInfo && state.userInfo.loginUserName || '' }}</p>
-          <p>昵称：{{ state.userInfo && state.userInfo.nickName || '' }}</p>
           <el-tag size="small" effect="dark" class="logout" @click="logout">退出</el-tag>
         </div>
       </el-popover>
@@ -54,12 +55,10 @@ const getUserInfo = async () => {
 }
 // 退出登录
 const logout = () => {
-  axios.delete('/logout').then(() => {
     // 退出之后，将本地保存的 token  清理掉
     localRemove('token')
     // 回到登录页
     router.push({ path: '/login' })
-  })
 }
 
 router.afterEach((to) => {

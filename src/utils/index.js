@@ -6,7 +6,7 @@ export function localGet (key) {
     return value
   }
 }
-
+//将键值对以JSON字符串的形式存储在浏览器的本地存储中，以便在需要时可以从本地存储中获取这些数据。
 export function localSet (key, value) {
   window.localStorage.setItem(key, JSON.stringify(value))
 }
@@ -42,5 +42,6 @@ export const pathMap = {
   transport: '运输追踪',
   order: '订单',
   order_detail: '订单详情',
-  account: '修改账户'
+  account: '修改账户',
+  Car:'车辆管理',
 }
