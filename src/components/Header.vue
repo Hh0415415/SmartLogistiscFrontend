@@ -43,6 +43,7 @@ import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '@/utils/axios'
 import { localRemove, pathMap } from '@/utils'
+import {ElMessage} from "element-plus";
 
 const router = useRouter()
 const state = reactive({
@@ -64,10 +65,16 @@ const getUserInfo = async () => {
 }
 // 退出登录
 const logout = () => {
+  axios.get('/logout').then((res) => {
+    ElMessage.success('退出登录')
     // 退出之后，将本地保存的 token  清理掉
     localRemove('token')
     // 回到登录页
     router.push({ path: '/login' })
+  })
+      .catch((err) => {
+        ElMessage.warning('退出失败')
+      })
 }
 
 router.afterEach((to) => {

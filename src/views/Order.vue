@@ -125,40 +125,6 @@ const State = reactive({
   multipleSelection: [], // 选中项
   inStorageWarehouseId: '',
   carId: ''
-  //total: 0, // 总条数
-  ///currentPage: 1, // 当前页
-  //pageSize: 10, // 分页大小
-  //productNum: '', // 订单号
-  //state: '', // 订单状态
-  //订单状态筛选项默认值
-  // options: [{
-  //   value: '',
-  //   label: '全部'
-  // }, {
-  //   value: 0,
-  //   label: '待支付'
-  // }, {
-  //   value: 1,
-  //   label: '已支付'
-  // }, {
-  //   value: 2,
-  //   label: '配货完成'
-  // }, {
-  //   value: 3,
-  //   label: '出库成功'
-  // }, {
-  //   value: 4,
-  //   label: '交易成功'
-  // }, {
-  //   value: -1,
-  //   label: '手动关闭'
-  // }, {
-  //   value: -2,
-  //   label: '超时关闭'
-  // }, {
-  //   value: -3,
-  //   label: '商家关闭'
-  // }]
 })
 // 初始化获取订单列表
 onMounted(() => {

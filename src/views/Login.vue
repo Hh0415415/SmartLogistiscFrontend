@@ -18,7 +18,10 @@
         <el-form-item>
           <div style="color: #333">登录表示您已同意<a>《服务条款》</a></div>
           <el-button style="width: 100%" type="primary" @click="submitForm">立即登录</el-button>
+          <br><br>
+          <el-button style="width: 100%" type="info" @click="Register">注册账号</el-button>
           <el-checkbox v-model="state.checked" @change="!state.checked">下次自动登录</el-checkbox>
+
         </el-form-item>
       </el-form>
     </div>
@@ -27,7 +30,7 @@
 
 <script setup>
 import axios from '@/utils/axios'
-import md5 from 'js-md5'
+import router from '@/router'
 import { reactive, ref } from 'vue'
 import { localSet } from '@/utils'
 import {ElMessage} from "element-plus";
@@ -69,23 +72,17 @@ const submitForm = async () => {
     }
   })
 }
-
-// const submitForm = async () => {
-//   loginForm.value.validate((valid) => {
-//     if (valid) {
-//       var params = new URLSearchParams();
-//       params.append('username', state.ruleForm.username || '');
-//       params.append('password', state.ruleForm.password);
-//       axios.post('/login', params).then(
-//           ElMessage.success('登录成功'),
-//           window.location.href = '/')
-//     } else {
-//       console.log('error submit!!')
-//       return false;
-//     }
-//   })
-// }
-
+//注册账号
+const Register = async () => {
+  axios.post('/register', { username: state.ruleForm.username, password: state.ruleForm.password })
+      .then(response => {
+        ElMessage.success('注册成功');
+        // Redirect to login page
+      })
+      .catch(error => {
+        ElMessage.error('注册失败');
+      });
+};
 
 const resetForm = () => {
   loginForm.value.resetFields();
