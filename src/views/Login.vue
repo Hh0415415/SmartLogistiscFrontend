@@ -24,6 +24,7 @@
 
         </el-form-item>
       </el-form>
+      <RegisterDetail ref='addRegister'  :type="state.type" />
     </div>
   </div>
 </template>
@@ -34,6 +35,8 @@ import router from '@/router'
 import { reactive, ref } from 'vue'
 import { localSet } from '@/utils'
 import {ElMessage} from "element-plus";
+import RegisterDetail from '@/components/RegisterDetail.vue'
+const addRegister = ref(null)
 const loginForm = ref(null)
 const state = reactive({
   ruleForm: {
@@ -41,6 +44,7 @@ const state = reactive({
     password: ''
   },
   checked: true,
+  type:'register',
   rules: {
     username: [
       { required: 'true', message: '账户不能为空', trigger: 'blur' }
@@ -73,16 +77,10 @@ const submitForm = async () => {
   })
 }
 //注册账号
-const Register = async () => {
-  axios.post('/register', { username: state.ruleForm.username, password: state.ruleForm.password })
-      .then(response => {
-        ElMessage.success('注册成功');
-        // Redirect to login page
-      })
-      .catch(error => {
-        ElMessage.error('注册失败');
-      });
-};
+const Register = () => {
+  state.type = 'register'
+  addRegister.value.open()
+}
 
 const resetForm = () => {
   loginForm.value.resetFields();
