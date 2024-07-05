@@ -30,6 +30,7 @@ import App from './App.vue'
 import router from '@/router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+
 const orderStatus = {
   0: '待支付',
   1: '已支付',
@@ -93,5 +94,6 @@ app.use(ElButton)
   .use(ElRadioGroup)
   .use(ElRadio)
   .use(ElSelect)
-  // .use(ElOption)
+  .use(ElOption)
+
 app.mount('#app') // 挂载到 #app

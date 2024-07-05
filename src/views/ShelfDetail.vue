@@ -1,15 +1,21 @@
 <template>
-  <el-card class="order-container">
+  <el-card class="transport-container">
     <template #header>
       <div class="header">
-
+        <p>货架编号:{{id}}</p>
       </div>
     </template>
     <el-table
         :load="state.loading"
         :data="state.tableData"
         tooltip-effect="dark"
-        style="width: 100%">
+        style="width: 100%"
+    >
+      <el-table-column
+          type="selection"
+          width="55">
+      </el-table-column>
+
       <el-table-column
           prop="order.id"
           label="订单号"
@@ -18,17 +24,24 @@
 
       <el-table-column
           prop="order.product.name"
-          label="商品名称"
+          label="商品名"
       >
       </el-table-column>
       <el-table-column
           prop="order.productNum"
           label="商品数量"
       >
+
       </el-table-column>
       <el-table-column
-          prop="order.product.price"
-          label="商品单价"
+          prop="order.shelve.warehouse.name"
+          label="当前仓库"
+      >
+
+      </el-table-column>
+      <el-table-column
+          prop="order.shelve.warehouse.position"
+          label="当前位置"
       >
       </el-table-column>
       <el-table-column
@@ -37,43 +50,42 @@
       >
       </el-table-column>
       <el-table-column
-          prop="orderPrice"
-          label="订单总价"
+          prop="order.state"
+          label="订单状态"
       >
       </el-table-column>
     </el-table>
-
-
-
   </el-card>
 </template>
-
 <script setup>
+
+import axios from '@/utils/axios'
+import router from "@/router";
 import { onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
+import {Delete, Plus} from "@element-plus/icons-vue";
 const route = useRoute()
-const orderid  = route.query.id
-import axios from '@/utils/axios'
-import {Delete, HomeFilled} from "@element-plus/icons-vue";
-const state = reactive({
-  data: {},
-  tableData: []
-})
-onMounted(() => {
-  // axios.get(`/order/search/${id}`).then(res => {
-  //   console.log(res)
-  //   state.data = res
-  //   state.tableData = res.newBeeMallOrderItemVOS
-  // })
-  //let id = route.params.id
+const id  = route.query.id
 
-  console.log( orderid);
-  axios.get(`/order/search/id/${orderid}`)
+const state = reactive({
+  loading: false,
+  tableData: []
+  , // 数据列表
+  Date:[],
+  name:'',
+  total: 0, // 总条数
+  currentPage: 1, // 当前页
+  pageSize: 10 // 分页大小
+})
+const formatPosition=(row)=>{
+  return `${row.posX},${row.posY}`;
+}
+onMounted(() => {
+  console.log( id);
+  axios.get(`/order/search/shelveId/${id}`)
       .then(response => {
-        // 假设响应数据中包含了需要的信息
-        // 这里可以根据响应做一些处理，比如验证等
         state.tableData=[]
-        state.tableData.push(response)
+        state.tableData=response
         console.log(state.tableData)
       })
       .catch(error => {
@@ -81,32 +93,6 @@ onMounted(() => {
         // 可以在这里处理错误，比如显示一个错误消息
       });
 })
+// 获取轮播图列表
+
 </script>
-
-<style scoped>
-.data {
-  display: flex;
-  margin-bottom: 50px;
-}
-.data .data-item {
-  flex: 1;
-  margin: 0 10px;
-}
-.el-table {
-  border: 1px solid #EBEEF5;
-  border-bottom: none;
-}
-.has-gutter th {
-  border-right: 1px solid #EBEEF5;
-}
-
-.has-gutter th:last-child {
-  border-right: none;
-}
-.el-table__row td {
-  border-right: 1px solid #EBEEF5;
-}
-.el-table__row td:last-child {
-  border-right: none;
-}
-</style>

@@ -16,13 +16,6 @@
       <router-link to="/insertcar">
         <el-button type="primary" icon="el-icon-edit">添加车辆信息</el-button>
       </router-link>  &nbsp;
-      <el-input
-          style="width: 135px; margin-right: 10px"
-          placeholder="请输入目的仓库号"
-          v-model="state.targetWarehouse"
-          clearable
-      />
-      <el-button type="primary" icon="el-icon-edit" @click="carDepart()">车辆出发</el-button>
       <br>
       <br>
       <el-input
@@ -32,7 +25,14 @@
           clearable
       />
       <el-button type="primary" icon="el-icon-edit" @click="searchByname">查询车辆信息</el-button>
-
+      &nbsp;
+      <el-input
+          style="width: 135px; margin-right: 10px"
+          placeholder="请输入目的仓库号"
+          v-model="state.targetWarehouse"
+          clearable
+      />
+      <el-button type="primary" icon="el-icon-edit" @click="carDepart()">&nbsp;车辆出发&nbsp;</el-button>
       <!--      <el-button type="danger" icon="el-icon-edit" @click="deleteById">删除车辆信息</el-button>-->
     </template>
 

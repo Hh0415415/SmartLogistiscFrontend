@@ -3,31 +3,36 @@
     <template #header>
       <div class="header">
         <el-input
-          style="width: 110px; margin-right: 10px"
+          style="width: 200px; margin-right: 10px"
           placeholder="请输入订单号"
           v-model="State.id"
           @change="handleOption"
           clearable
           />
+        <el-button type="primary" icon="el-icon-edit" @click="searchById">查询订单</el-button>
+        <el-button type="danger" :icon="Delete" @click="deleteOrder()">删除订单</el-button>
+        <el-button type="danger" :icon="Delete" @click="deleteBatch()">批量删除</el-button>
+        <br><br>
         <el-input
-            style="width: 110px; margin-right: 10px"
+            style="width: 200px; margin-right: 10px"
             placeholder="请输入仓库号"
             v-model="State.inStorageWarehouseId"
             @change="handleOption"
             clearable
         />
+        <el-button type="primary" :icon="HomeFilled" @click="inStorage()">入库</el-button>
+        &nbsp;
         <el-input
-            style="width: 110px; margin-right: 10px"
+            style="width: 200px; margin-right: 10px"
             placeholder="请输入车辆号"
             v-model="State.carId"
             @change="handleOption"
             clearable
         />
-        <el-button type="primary" icon="el-icon-edit" @click="searchById">查询订单</el-button>
-        <el-button type="primary" :icon="HomeFilled" @click="inStorage()">入库</el-button>
+
+
         <el-button type="primary" :icon="HomeFilled" @click="outStorage()">出库</el-button>
-        <el-button type="danger" :icon="Delete" @click="deleteOrder()">删除订单</el-button>
-        <el-button type="danger" :icon="Delete" @click="deleteBatch()">批量删除</el-button>
+
       </div>
     </template>
     <el-table
@@ -83,46 +88,17 @@
           label="完成时间"
       >
       </el-table-column>
-<!--      <el-table-column-->
-<!--        label="操作"-->
-<!--      >-->
-<!--        <template #default="scope">-->
-<!--          <el-popconfirm-->
-<!--            v-if="scope.row.orderStatus == 1"-->
-<!--            title="确定配货完成吗？"-->
-<!--            @confirm="handleConfig(scope.row.orderId)"-->
-<!--            confirm-button-text="确定"-->
-<!--            cancel-button-text="取消"-->
-<!--          >-->
-<!--            <template #reference>-->
-<!--              <a style="cursor: pointer; margin-right: 10px">配货完成</a>-->
-<!--            </template>-->
-<!--          </el-popconfirm>-->
-<!--          <el-popconfirm-->
-<!--            v-if="scope.row.orderStatus == 2"-->
-<!--            title="确定出库吗？"-->
-<!--            @confirm="handleSend(scope.row.orderId)"-->
-<!--            confirm-button-text="确定"-->
-<!--            cancel-button-text="取消"-->
-<!--          >-->
-<!--            <template #reference>-->
-<!--              <a style="cursor: pointer; margin-right: 10px">出库</a>-->
-<!--            </template>-->
-<!--          </el-popconfirm>-->
-<!--          <el-popconfirm-->
-<!--            v-if="!(scope.row.orderStatus == 4 || scope.row.orderStatus < 0)"-->
-<!--            title="确定关闭订单吗？"-->
-<!--            @confirm="handleClose(scope.row.orderId)"-->
-<!--            confirm-button-text="确定"-->
-<!--            cancel-button-text="取消"-->
-<!--          >-->
-<!--            <template #reference>-->
-<!--              <a style="cursor: pointer; margin-right: 10px">关闭订单</a>-->
-<!--            </template>-->
-<!--          </el-popconfirm>-->
-<!--          <router-link :to="{ path: '/order_detail', query: { id: scope.row.orderId }}">订单详情</router-link>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <el-table-column label="操作">
+        <template v-slot="{row}">
+
+          <el-button type="primary" @click="goToOrderDetail(row.order.id)">
+            订单详情
+          </el-button>
+
+        </template>
+      </el-table-column>
+
+
     </el-table>
 <!--    <el-pagination-->
 <!--      background-->
@@ -140,52 +116,24 @@ import { onMounted, reactive, ref } from 'vue'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import { HomeFilled, Delete } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
-
+import OrderDetail from "@/views/OrderDetail.vue";
+import { createApp } from 'vue'
+import router from '@/router'
 const State = reactive({
   loading: false,
   tableData: [], // 数据列表
   multipleSelection: [], // 选中项
   inStorageWarehouseId: '',
   carId: ''
-  //total: 0, // 总条数
-  ///currentPage: 1, // 当前页
-  //pageSize: 10, // 分页大小
-  //productNum: '', // 订单号
-  //state: '', // 订单状态
-  //订单状态筛选项默认值
-  // options: [{
-  //   value: '',
-  //   label: '全部'
-  // }, {
-  //   value: 0,
-  //   label: '待支付'
-  // }, {
-  //   value: 1,
-  //   label: '已支付'
-  // }, {
-  //   value: 2,
-  //   label: '配货完成'
-  // }, {
-  //   value: 3,
-  //   label: '出库成功'
-  // }, {
-  //   value: 4,
-  //   label: '交易成功'
-  // }, {
-  //   value: -1,
-  //   label: '手动关闭'
-  // }, {
-  //   value: -2,
-  //   label: '超时关闭'
-  // }, {
-  //   value: -3,
-  //   label: '商家关闭'
-  // }]
 })
 // 初始化获取订单列表
 onMounted(() => {
   getOrderList()
 })
+const goToOrderDetail=(orderId)=> {
+  console.log(orderId)
+  router.push({ path: '/order_detail', query:{id:orderId}});
+}
 // 获取列表方法
 const getOrderList = () => {
   axios.get('/order/search', {
