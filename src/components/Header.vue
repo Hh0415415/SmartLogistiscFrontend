@@ -15,14 +15,23 @@
       >
         <template #reference>
           <div class="author">
-            <i class="icon el-icon-s-custom" />
-            {{ state.userInfo || '' }}
-            <i class="el-icon-caret-bottom" />
+            <div>
+              <el-icon  :size="size" :color="color">
+                <el-icon-user></el-icon-user>
+              </el-icon>
+              &nbsp;
+              {{ state.userInfo || '' }}
+              &nbsp;
+              <el-icon  :size="size" :color="color">
+              <el-icon-caret-bottom></el-icon-caret-bottom>
+            </el-icon>
+              <!-- 或者独立使用它，不从父级获取属性 -->
+            </div>
           </div>
         </template>
         <div class="nickname">
           <p>登录名：{{ state.userInfo || '' }}</p>
-          <el-tag size="small" effect="dark" class="logout" @click="logout">退出</el-tag>
+          <el-tag effect="dark" class="logout" @click="logout">退出登录</el-tag>
         </div>
       </el-popover>
     </div>
