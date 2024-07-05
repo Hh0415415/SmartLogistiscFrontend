@@ -16,15 +16,7 @@
            :default-openeds="state.defaultOpen"
            :default-active='state.currentPath'
         >
-          <el-sub-menu index="1">
-            <template #title>
-              <span>Dashboard</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="/"><el-icon><Odometer /></el-icon>首页</el-menu-item>
-              <el-menu-item index="/add"><el-icon><Plus /></el-icon>添加商品</el-menu-item>
-            </el-menu-item-group>
-          </el-sub-menu>
+          <el-menu-item index="/">首页</el-menu-item>
            <el-sub-menu index="2">
             <template #title>
               <span>订单管理</span>
@@ -33,7 +25,7 @@
               <el-menu-item index="/order"><el-icon><Picture /></el-icon>订单</el-menu-item>
               <el-menu-item index="/dashboard"><el-icon><StarFilled /></el-icon>统计数据</el-menu-item>
               <el-menu-item index="/good"><el-icon><Sell /></el-icon>商品管理</el-menu-item>
-              <el-menu-item index="/recommend"><el-icon><ShoppingCart /></el-icon>结算</el-menu-item>
+
             </el-menu-item-group>
           </el-sub-menu>
           <el-sub-menu index="3">
@@ -43,8 +35,6 @@
             <el-menu-item-group>
               <el-menu-item index="/warehouse"><el-icon><Menu /></el-icon>仓库管理</el-menu-item>
               <el-menu-item index="/shelf"><el-icon><Goods /></el-icon>货架管理</el-menu-item>
-              <el-menu-item index="/transport"><el-icon><User /></el-icon>库存管理</el-menu-item>
-              <el-menu-item index="/order"><el-icon><List /></el-icon>暂无</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
           <el-sub-menu index="4">
@@ -53,8 +43,6 @@
             </template>
             <el-menu-item-group>
               <el-menu-item index="/Car"><el-icon><StarFilled /></el-icon>车辆管理</el-menu-item>
-              <el-menu-item index="/account"><el-icon><StarFilled /></el-icon>作业管理</el-menu-item>
-              <el-menu-item index="/transport"><el-icon><StarFilled /></el-icon>运输追踪</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
         </el-menu>
