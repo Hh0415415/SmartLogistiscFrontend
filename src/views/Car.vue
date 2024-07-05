@@ -1,9 +1,6 @@
 <template>
   <el-card class="good-container">
     <template #header>
-      <!--      <div class="header">-->
-      <!--        <el-button type="primary" :icon="Plus" @click="handleAdd">新增商品</el-button>-->
-      <!--      </div>-->
       <el-input
           style="width: 200px; margin-right: 10px"
           placeholder="请输入车辆号"
@@ -16,6 +13,14 @@
       <router-link to="/insertcar">
         <el-button type="primary" icon="el-icon-edit">添加车辆信息</el-button>
       </router-link>  &nbsp;
+      <el-input
+          style="width: 135px; margin-right: 10px"
+          placeholder="请输入目的仓库号"
+          v-model="state.targetWarehouse"
+          clearable
+      />
+      <el-button type="primary" icon="el-icon-edit" @click="carDepart()">车辆出发</el-button>
+
       <br>
       <br>
       <el-input
@@ -25,14 +30,7 @@
           clearable
       />
       <el-button type="primary" icon="el-icon-edit" @click="searchByname">查询车辆信息</el-button>
-      &nbsp;
-      <el-input
-          style="width: 135px; margin-right: 10px"
-          placeholder="请输入目的仓库号"
-          v-model="state.targetWarehouse"
-          clearable
-      />
-      <el-button type="primary" icon="el-icon-edit" @click="carDepart()">&nbsp;车辆出发&nbsp;</el-button>
+
       <!--      <el-button type="danger" icon="el-icon-edit" @click="deleteById">删除车辆信息</el-button>-->
     </template>
 
@@ -103,6 +101,8 @@ const app = getCurrentInstance()
 const { goTop } = app.appContext.config.globalProperties
 const router = useRouter()
 let driving = null;
+const markers = []; // 保存所有 marker
+let passedWarehouses=[];
 const state = reactive({
   targetWarehouse: '',
   loading: false,
@@ -143,6 +143,7 @@ const submitOrder=()=> {
 onMounted(() => {
   getGoodList()
   loadMap()
+
 })
 //车辆出发
 const carDepart = () => {
@@ -158,31 +159,72 @@ const carDepart = () => {
     targetWarehouseId: state.targetWarehouse
   }).then(() => {
     ElMessage.success('车辆已出发')
+    upDateMap(state.multipleSelection[0].id)
     getGoodList()
   })
 }
 
+
+const focusOnCar=(carId)=>{
+  axios.get('/car/search/id/' + carId).then(res => {
+    let car = res
+    console.log(car)
+    let warehouse = car.warehouse
+    let lngLat = warehouse.lngLat
+    let lng = lngLat.lng
+    let lat = lngLat.lat
+    if (state.map) {
+      driving.clear();
+      state.map.setCenter([lng, lat])
+    }
+  })
+}
+const autoInAndOutBound = (carId, passedWarehouses, windowInfo)=>{
+  axios.put('/warehouse/autoInAndOutBound',{
+    carId:carId,
+    passWarehouses:passedWarehouses
+  }).then(()=>{
+    getGoodList()
+    focusOnCar(carId)
+    if(windowInfo){
+      ElMessage.success(windowInfo)
+    }
+  })
+}
 //车辆到达
 const carArrive = (carId) => {
-  axios.put('/car?carId=' + carId,).then(() => {
-    ElMessage.success('车辆已到达')
-    getGoodList()
-  })
+  if(passedWarehouses.length!==0){
+    let message="途经:<br>";
+    let number = 1;
+    passedWarehouses.forEach(warehouse => {
+      message += number;
+      message += ': ';
+      message += warehouse.name;
+      message += '<br>';
+      number++;
+    })
+    message += "是否停靠途经仓库？确定将自动完成经停仓库出入库！"
+    ElMessageBox.confirm(message, '提示', {
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+      type: 'warning',
+      dangerouslyUseHTMLString:true
+    }).then(()=>{
+      autoInAndOutBound(carId,passedWarehouses,'中途停靠,车辆已到达');
+    }).catch(()=>{
+      autoInAndOutBound(carId,[],'中途取消停靠,车辆已到达');
+    })
+  }else {
+    autoInAndOutBound(carId,[],'车辆已到达')
+  }
 }
 //
 const getGoodList = () => {
   state.loading = true
-  axios.get('/car/search', {
-    params: {
-      pageNumber: state.currentPage,
-      pageSize: state.pageSize
-    }
-  }).then(res => {
+  axios.get('/car/search',).then(res => {
     state.tableData = res
     state.loading = false
-    //goTop && goTop()
   }).catch(err => {
-    //state.tableData = err;
     console.log(err);
   })
 }
@@ -195,12 +237,9 @@ const searchById = () => {
   }).then(res => {
     state.tableData=[]
     state.tableData.push(res)
-    //state.total = res.totalCount
-    //state.currentPage = res.currPage
     state.loading = false
   }).catch(err => {
     state.tableData = [];
-    //state.tableData.push(err) ;
     console.log(state.tableData);
   })
 }
@@ -284,7 +323,7 @@ const upDateMap = (carId) => {
       ElMessage.success('物流更新成功')
       if(car.targetWarehouse){
         planRouteForCar(car)
-      }else {
+      }else if(driving){
         driving.clear()
       }
     }
@@ -330,9 +369,25 @@ const addMarkersAndInfoWindows = (warehouses) => {
     });
 
     state.map.add(marker);
+    markers.push(marker); // 保存 marker 到数组
   });
 };
 
+const clearMarkers = () => {
+  markers.forEach(marker => {
+    marker.setMap(null); // 清除 marker
+  });
+  markers.length = 0; // 清空数组
+};
+
+const loadWarehouses=()=>{
+  axios.get("/warehouse/search").then(res=>{
+    console.log(res)
+    state.warehouses=res
+    clearMarkers()
+    addMarkersAndInfoWindows(state.warehouses)
+  })
+}
 const loadMap = () => {
   state.mapVisible = true
 
@@ -342,11 +397,7 @@ const loadMap = () => {
       center: [113.53591,34.817077],
       resizeEnable: true
     })
-    axios.get("/warehouse/search").then(res=>{
-      console.log(res)
-      state.warehouses=res
-      addMarkersAndInfoWindows(state.warehouses)
-    })
+    loadWarehouses()
   }).catch(err => {
     console.error('Error loading AMap script:', err)
   })
@@ -372,6 +423,28 @@ const loadAMapScript = () => {
     document.head.appendChild(script)
   })
 }
+const getPassedWarehouses = (path, warehouses, startLngLat, endLngLat) => {
+  const passedWarehouses = [];
+  const passedSet = new Set();
+  const threshold = 0.001; // 距离阈值，用于判断路径点是否接近仓库
+
+  path.forEach(point => {
+    warehouses.forEach(warehouse => {
+      const { lng, lat } = warehouse.lngLat;
+      const distance = Math.sqrt(Math.pow(point.lng - lng, 2) + Math.pow(point.lat - lat, 2));
+      if (distance < threshold && !passedSet.has(`${lng},${lat}`)) {
+        passedSet.add(`${lng},${lat}`);
+        passedWarehouses.push(warehouse);
+      }
+    });
+  });
+  // 过滤掉起点和终点
+  const uniquePassedWarehouses = passedWarehouses.filter(warehouse =>
+      !(warehouse.lngLat.lng === startLngLat.lng && warehouse.lngLat.lat === startLngLat.lat) &&
+      !(warehouse.lngLat.lng === endLngLat.lng && warehouse.lngLat.lat === endLngLat.lat)
+  );
+  return uniquePassedWarehouses;
+};
 
 const planRoute = (start, end) => {
   AMap.plugin('AMap.Driving', function() {
@@ -380,13 +453,15 @@ const planRoute = (start, end) => {
     }
     driving = new AMap.Driving({
       map: state.map,
-      policy: 5,
+      policy: 5,//多策略（同时使用速度优先、费用优先、距离优先三个策略计算路径）。其中必须说明，就算使用三个策略算路，会根据路况不固定的返回一~三条路径规划信息。
       panel: 'panel'
     })
     // 规划驾车路线
     driving.search(start, end, function(status, result) {
           if (status === 'complete') {
             console.log('路线规划成功')
+            const path = result.routes[0].steps.flatMap(step => step.path);
+            passedWarehouses = getPassedWarehouses(path, state.warehouses,start,end);
           } else {
             console.error('路线规划失败：', result)
           }
@@ -398,8 +473,11 @@ const planRoute = (start, end) => {
 const planRouteForCar = (car) => {
   const start = new AMap.LngLat(car.warehouse.lngLat.lng, car.warehouse.lngLat.lat)
   const end = new AMap.LngLat(car.targetWarehouse.lngLat.lng, car.targetWarehouse.lngLat.lat)
-  planRoute(start, end)
-}
+  if(!start.equals(end)){
+    planRoute(start, end)
+  }
+};
+
 </script>
 
 <style scoped>
