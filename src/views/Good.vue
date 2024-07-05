@@ -1,51 +1,44 @@
 <template>
   <el-card class="good-container">
     <template #header>
-            <div class="header">
-              <el-button type="primary" :icon="Plus" @click="handleAdd">新增商品</el-button>
-            </div>
       <el-input
           style="width: 200px; margin-right: 10px"
           placeholder="请输入商品号"
           v-model="state.key"
           clearable
       />
-
       <el-button type="primary" icon="el-icon-edit" @click="searchById">查询商品信息</el-button>
-      <el-button type="primary" icon="el-icon-edit" @click="deleteById">删除商品信息</el-button>
+      <el-button type="danger" icon="el-icon-edit" @click="deleteById">删除商品信息</el-button>
+      &nbsp;
+      <br><br>
 
-      <!--      <el-button type="primary" icon="el-icon-edit" @click="submitOrder">提交订单</el-button>-->
-      <!--      <el-input-->
-      <!--          style="width: 200px; margin-right: 10px"-->
-      <!--          placeholder="请输入商品号"-->
-      <!--          v-model="state.data.productId"-->
-      <!--          clearable-->
-      <!--      />-->
-      <!--      <el-input-->
-      <!--          style="width: 200px; margin-right: 10px"-->
-      <!--          placeholder="请输入商品数量"-->
-      <!--          v-model="state.data.productNum"-->
-      <!--          clearable-->
-      <!--      />-->
-      <!--      <el-input-->
-      <!--          style="width: 200px; margin-right: 10px"-->
-      <!--          placeholder="请输入仓库名"-->
-      <!--          v-model="state.data.targetWarehouseId"-->
-      <!--          clearable-->
-      <!--      />-->
-      <!--      <el-button type="primary" icon="el-icon-edit" @click="submitOrder">提交订单</el-button>-->
-      <!--&lt;!&ndash;      </form>&ndash;&gt;-->
       <router-link to="/addorder">
-        <el-button>
+        <el-button type="primary">
           <el-icon>
             <AddOrder />
           </el-icon>
           添加订单
         </el-button>
       </router-link>
+      &nbsp; <router-link to="/add">
+      <el-button type="primary">
+        <el-icon>
+          <Add />
+        </el-icon>
+        添加商品
+      </el-button>
+    </router-link>
+      &nbsp;
+      <router-link to="/updategood">
+        <el-button type="primary">
+          <el-icon>
+            <UpdateGood />
+          </el-icon>
+          修改商品
+        </el-button>
+      </router-link>
 
     </template>
-
     <el-table
         :load="state.loading"
         :data="state.tableData"
@@ -67,44 +60,13 @@
           label="商品型号"
       >
       </el-table-column>
-      <!--      <el-table-column-->
-      <!--        label="商品图片"-->
-      <!--        width="150px"-->
-      <!--      >-->
-      <!--        <template #default="scope">-->
-      <!--          <img style="width: 100px; height: 100px;" :key="scope.row.goodsId" :src="$filters.prefix(scope.row.goodsCoverImg)" alt="商品主图">-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
 
       <el-table-column
           prop="price"
           label="商品价格"
       >
       </el-table-column>
-      <!--      <el-table-column-->
-      <!--        prop="sellingPrice"-->
-      <!--        label="商品售价"-->
-      <!--      >-->
-      <!--      </el-table-column>-->
-      <!--      <el-table-column-->
-      <!--        label="上架状态"-->
-      <!--      >-->
-      <!--        <template #default="scope">-->
-      <!--          <span style="color: green;" v-if="scope.row.goodsSellStatus == 0">销售中</span>-->
-      <!--          <span style="color: red;" v-else>已下架</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
 
-      <!--      <el-table-column-->
-      <!--        label="操作"-->
-      <!--        width="100"-->
-      <!--      >-->
-      <!--        <template #default="scope">-->
-      <!--          <a style="cursor: pointer; margin-right: 10px" @click="handleEdit(scope.row.goodsId)">修改</a>-->
-      <!--          <a style="cursor: pointer; margin-right: 10px" v-if="scope.row.goodsSellStatus == 0" @click="handleStatus(scope.row.goodsId, 1)">下架</a>-->
-      <!--          <a style="cursor: pointer; margin-right: 10px" v-else @click="handleStatus(scope.row.goodsId, 0)">上架</a>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
     </el-table>
     <!--总数超过一页，再展示分页器-->
     <el-pagination
@@ -116,36 +78,45 @@
         @current-change="changePage"
     />
   </el-card>
+  <!--  <DialogInsertOrser ref="insertcliclk"/>-->
 </template>
-
 <script setup>
-import { onMounted, reactive, getCurrentInstance } from 'vue'
+import {onMounted, reactive, getCurrentInstance, ref} from 'vue'
 import axios from '@/utils/axios'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
-
+const insertcliclk =ref()
 const app = getCurrentInstance()
 const { goTop } = app.appContext.config.globalProperties
 const router = useRouter()
 const state = reactive({
   loading: false,
+  dialogFormVisible:false,
+  formLabelWidth: '120px',
   tableData: [], // 数据列表
   data:{
     productId: '',
     productNum: '',
     targetWarehouseId: ''
   },
+  form: {
+    name: '',
+    region: '',
+    date1: '',
+    date2: '',
+    delivery: false,
+    type: [],
+    resource: '',
+    desc: ''
+  },
   total: 0, // 总条数
   key:null,
   currentPage: 1, // 当前页
   pageSize: 10 // 分页大小
 })
-// checkbox 选择项
-const handleSelectionChange = (val) => {
-  state.multipleSelection = val
-}
+
 const submitOrder=()=> {
   console.log(state.data)
   axios.post("/order/submit", state.data)
@@ -164,46 +135,50 @@ onMounted(() => {
 // 获取轮播图列表
 const getGoodList = () => {
   state.loading = true
-  axios.get('/product/search', {
-    params: {
-      pageNumber: state.currentPage,
-      pageSize: state.pageSize
-    }
-  }).then(res => {
-    state.tableData = res;
+  axios.get('/product/search'
+  ).then(res => {
+    state.tableData=[]
+    state.tableData = res
+    console.log(state.tableData)
+    //state.tableData = res.list;
   }).catch(err => {
-    console.log(err);
+    state.tableData=err
+    state.loading = false
   })
 }
-
-
-
 const searchById = () => {
-  if (state.key<=0)
+  if (!state.key){
     getGoodList();
+  }
   axios.get('/product/search/id/'+state.key, {
   }).then(res => {
-    state.tableData = [];
+    state.tableData=[];
     state.tableData.push(res);
+    console.log(state.tableData)
+    state.loading = false
   }).catch(err => {
-
+    //state.tableData = [];
+    //state.tableData.push(err)
   })
 }
-
 const deleteById = () => {
-  ElMessageBox.confirm('确定要删除商品吗?', '提示', {
+  ElMessageBox.confirm('确定要删除订单吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    if (state.key == null)
+    if (!state.key){
       getGoodList();
+    }
     axios.delete('/product/delete/id/' + state.key, {}).then(res => {
+      ElMessage.success('删除成功')
+      state.key = null
+      getGoodList()
+      state.loading = false
+    }).catch(err => {
       getGoodList()
       state.key = null
-      ElMessage.success('删除成功');
-    }).catch(err => {
-
+      ElMessage.success('删除成功')
     })
   }).catch(()=>{
     ElMessage.success('取消成功')

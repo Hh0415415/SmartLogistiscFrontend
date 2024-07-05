@@ -11,8 +11,9 @@
             @change="handleOption"
             clearable
         />
-        <el-button type="primary" icon="el-icon-edit" @click="searchById">查询仓库</el-button>
-        <el-button type="danger" icon="el-icon-edit" @click="deleteById">删除仓库</el-button>
+        <el-button type="primary" icon="el-icon-edit" @click="searchById">查询仓库信息</el-button>
+        <el-button type="danger" icon="el-icon-edit" @click="deleteById">删除仓库信息</el-button>
+        <el-button type="danger" :icon="Delete" @click="deleteBatch()">批量删除</el-button>
       </div>
     </template>
     <el-table
@@ -56,6 +57,15 @@
         <!--            </span>-->
         <!--          </template>-->
       </el-table-column>
+      <el-table-column label="操作">
+        <template v-slot="{row}">
+
+          <el-button type="primary" @click="goToWarehouseDetail(row.id)">
+            仓库详情
+          </el-button>
+
+        </template>
+      </el-table-column>
       <!--        <el-table-column-->
       <!--            prop="createTime"-->
       <!--            label="备注"-->
@@ -68,9 +78,10 @@
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
 import Table from '@/components/Table.vue'
-import { ElMessage } from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
+import router from "@/router";
 const state = reactive({
   loading: false,
   tableData: [], // 数据列表
@@ -85,43 +96,170 @@ onMounted(() => {
 const getGoodList = () => {
   state.loading = true
   axios.get('/warehouse/search', {
-    params: {
-      pageNumber: state.currentPage,
-      pageSize: state.pageSize
-    }
   }).then(res => {
-    state.tableData = res;
+    state.tableData = res
+    state.loading = false
   }).catch(err => {
     console.log(err);
   })
 }
-let table = ref(null)
-const handleSolve = () => {
-  if (!table.value.state.multipleSelection.length) {
-    ElMessage.error('请选择项')
-    return
+const searchById = () => {
+  if (!state.key){
+    getGoodList();
   }
-  axios.put(`/users/0`, {
-    ids: table.value.state.multipleSelection.map(item => item.userId)
+  axios.get('/warehouse/search/id/'+state.key, {
+  }).then(res => {
+    state.tableData=[]
+    state.tableData.push(res)
+    state.loading = false
+  }).catch(err => {
+  })
+
+}
+const goToWarehouseDetail=(Id)=> {
+  console.log(Id)
+  router.push({ path: '/warehouse_detail', query:{id:Id}});
+  // axios.get(`/order/search/id/${orderId}`)
+  //     .then(response => {
+  //       // 假设响应数据中包含了需要的信息
+  //       // 这里可以根据响应做一些处理，比如验证等
+  //       state.tableData=[]
+  //       state.tableData.push(response)
+  //       console.log(state.tableData)
+  //     })
+  //     .catch(error => {
+  //       console.error('获取订单详情失败:', error);
+  //       // 可以在这里处理错误，比如显示一个错误消息
+  //     });
+}
+const deleteById = () => {
+  ElMessageBox.confirm('确定要删除订单吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(() => {
-    ElMessage.success('解除成功')
-    table.value.getList()
+    if (!state.key){
+      getGoodList();
+    }
+    axios.delete('/warehouse/delete/id/' + state.key, {}).then(res => {
+      ElMessage.success('删除成功')
+      state.key = null
+      getGoodList()
+      state.loading = false
+    }).catch(err => {
+      getGoodList()
+      state.key = null
+      ElMessage.success('删除成功')
+    })
+  }).catch(()=>{
+    ElMessage.success('取消成功')
   })
 }
-const handleForbid = () => {
-  if (!table.value.state.multipleSelection.length) {
-    ElMessage.error('请选择项')
-    return
+const deleteBatch = (id) => {
+  let params
+  let success = false
+  if (id) {
+    params = [id]
+  } else {
+    if (!state.multipleSelection.length) {
+      ElMessage.error('请选择项')
+      return
+    }
+    params = state.multipleSelection.map(i => i.id)
   }
-  axios.put(`/users/1`, {
-    ids: table.value.state.multipleSelection.map(item => item.userId)
+  ElMessageBox.confirm('确定要删除该仓库信息?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(() => {
-    ElMessage.success('禁用成功')
-    table.value.getList()
+    // 用户点击确定按钮后执行的操作
+    params.forEach(param => {
+      axios.delete('/warehouse/delete/id/'+param,{})
+      success = true
+
+      getGoodList()
+    })
+    if(success){
+      ElMessage.success('删除成功')
+      state.key=null
+      getGoodList()
+    }
+    // 在这里可以添加执行操作的代码
+  }).catch(() => {
+    // 用户点击取消按钮后执行的操作
+    ElMessage.success('取消成功')
+    // 在这里可以添加取消操作的代码
+  });
+
+}
+//checkbox 选择项
+const handleSelectionChange = (val) => {
+  state.multipleSelection=val
+}
+// 翻页方法
+const changePage = (val) => {
+  state.currentPage = val
+  getOrderList()
+}
+// 配货方法
+const handleConfig = (id) => {
+  let params
+  // 当个配置
+  if (id) {
+    params = [id]
+  } else {
+    if (!state.multipleSelection.length) {
+      console.log('state.multipleSelection', state.multipleSelection.length)
+      ElMessage.error('请选择项')
+      return
+    }
+    // 多选配置
+    params = state.multipleSelection.map(i => i.orderId)
+  }
+
+  axios.put('/orders/checkDone', {
+    ids: params
+  }).then(() => {
+    ElMessage.success('配货成功')
+    getOrderList()
+  })
+}
+// 出库方法
+const handleSend = (id) => {
+  let params
+  if (id) {
+    params = [id]
+  } else {
+    if (!state.multipleSelection.length) {
+      ElMessage.error('请选择项')
+      return
+    }
+    params = state.multipleSelection.map(i => i.orderId)
+  }
+  axios.put('/orders/checkOut', {
+    ids: params
+  }).then(() => {
+    ElMessage.success('出库成功')
+    getOrderList()
+  })
+}
+// 关闭订单方法
+const handleClose = (id) => {
+  let params
+  if (id) {
+    params = [id]
+  } else {
+    if (!state.multipleSelection.length) {
+      ElMessage.error('请选择项')
+      return
+    }
+    params = state.multipleSelection.map(i => i.orderId)
+  }
+  axios.put('/orders/close', {
+    ids: params
+  }).then(() => {
+    ElMessage.success('关闭成功')
+    getOrderList()
   })
 }
 </script>
-
-<style>
-
-</style>

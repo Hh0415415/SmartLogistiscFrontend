@@ -27,11 +27,7 @@ const router = createRouter({
       name: 'add',
       component: () => import(/* webpackChunkName: "add" */ '../views/AddGood.vue')
     },
-    {
-      path: '/shelf',
-      name: 'shelf',
-      component: () => import(/* webpackChunkName: "shelf" */ '../views/shelf.vue')
-    },
+
     {
       path: '/hot',
       name: 'hot',
@@ -69,11 +65,7 @@ const router = createRouter({
       name: 'good',
       component: () => import(/* webpackChunkName: "new" */ '../views/Good.vue')
     },
-    {
-      path: '/transport',
-      name: 'transport',
-      component: () => import(/* webpackChunkName: "transport" */ '../views/Transport.vue')
-    },
+
     {
       path: '/order',
       name: 'order',
@@ -85,9 +77,14 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "order_detail" */ '../views/OrderDetail.vue')
     },
     {
-      path: '/account',
-      name: 'account',
-      component: () => import(/* webpackChunkName: "account" */ '../views/Account.vue')
+      path: '/warehouse_detail',
+      name: 'warehouse_detail',
+      component: () => import(/* webpackChunkName: "order_detail" */ '../views/WarehouseDetail.vue')
+    },
+    {
+      path: '/transport',
+      name: 'transport',
+      component: () => import(/* webpackChunkName: "order_detail" */ '../views/Transport.vue')
     },
     {
       path: '/warehouse',
@@ -95,15 +92,40 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "order_detail" */ '../views/Warehouse.vue')
     },
     {
-      path: '/addorder',
-      name: 'addorder',
-      component: () => import(/* webpackChunkName: "addorder" */ '../views/AddOrder.vue')
+      path: '/shelf_detail',
+      name: 'shelf_detail',
+      component: () => import(/* webpackChunkName: "order_detail" */ '../views/ShelfDetail.vue')
     },
     {
-      path: '/Car',
-      name: 'Car',
-      component: () => import(/* webpackChunkName: "Car" */ '../views/Car.vue')
+      path: '/shelf',
+      name: 'shelf',
+      component: () => import(/* webpackChunkName: "order_detail" */ '../views/Shelf.vue')
     },
+    {
+      path: '/account',
+      name: 'account',
+      component: () => import(/* webpackChunkName: "account" */ '../views/Account.vue')
+    },
+    {
+      path: '/addorder',
+      name: 'addorder',
+      component: () => import(/* webpackChunkName: "account" */ '../views/AddOrder.vue')
+    },
+    {
+      path: '/car',
+      name: 'car',
+      component: () => import(/* webpackChunkName: "account" */ '../views/Car.vue')
+    },
+    {
+      path: '/updategood',
+      name: 'updategood',
+      component: () => import(/* webpackChunkName: "account" */ '../views/UpdateGood.vue')
+    },
+    {
+      path: '/insertcar',
+      name: 'insertcar',
+      component: () => import(/* webpackChunkName: "account" */ '../views/InsertCar.vue')
+    }
   ]
 })
 

@@ -2,6 +2,19 @@
   <el-card class="add-container">
 
     <div>
+      <b>商品号 : </b>
+      &nbsp;
+      <el-input
+          style="width: 600px; height:50px;margin-right: 20px"
+          placeholder="请输入修改商品号"
+          v-model="state.data.id"
+          clearable
+      />
+    </div>
+
+    <br>
+    <br>
+    <div>
       <b>商品类型: </b>
       <el-input
           style="width: 600px; height:50px;margin-right: 20px"
@@ -33,7 +46,7 @@
     <br><br>
     <!--    <el-button  type="primary" icon="el-icon-edit" @click="submitOrder">提交订单</el-button>-->
     <div class="button-container">
-      <el-button type="primary" icon="el-icon-edit" @click="submitUpdate">提交商品信息</el-button>
+      <el-button type="primary" icon="el-icon-edit" @click="submitUpdate">提交修改</el-button>
     </div>
     <!--      </form>-->
   </el-card>
@@ -63,7 +76,7 @@ const state = reactive({
 })
 
 const submitUpdate=()=> {
-  axios.post("/product/insert", state.data)
+  axios.put("/product/update", state.data)
       .then(response => {
         console.log(state.data)
         ElMessage.success('添加成功')
