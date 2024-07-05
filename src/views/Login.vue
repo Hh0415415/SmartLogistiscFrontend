@@ -53,18 +53,40 @@ const submitForm = async () => {
       var params = new URLSearchParams();
       params.append('username', state.ruleForm.username || '');
       params.append('password', state.ruleForm.password);
-      axios.post('/login', params).then(
-          ElMessage.success('登录成功'),
-          localSet('token', state.ruleForm.username + state.ruleForm.password),
-         window.location.href = '/').catch(
-          ElMessage.warning('登录失败'),
-          router.push({ path: '/login' }))
+      axios.post('/login', params)
+          .then(() => {
+            ElMessage.success('登录成功');
+            localSet('token', state.ruleForm.username + state.ruleForm.password);
+            window.location.href = '/';
+          })
+          .catch((err) => {
+            ElMessage.warning('登录失败');
+            router.push({ path: '/login' });
+          });
     } else {
       console.log('error submit!!')
       return false;
     }
   })
 }
+
+// const submitForm = async () => {
+//   loginForm.value.validate((valid) => {
+//     if (valid) {
+//       var params = new URLSearchParams();
+//       params.append('username', state.ruleForm.username || '');
+//       params.append('password', state.ruleForm.password);
+//       axios.post('/login', params).then(
+//           ElMessage.success('登录成功'),
+//           window.location.href = '/')
+//     } else {
+//       console.log('error submit!!')
+//       return false;
+//     }
+//   })
+// }
+
+
 const resetForm = () => {
   loginForm.value.resetFields();
 }

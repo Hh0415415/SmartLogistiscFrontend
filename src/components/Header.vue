@@ -16,12 +16,12 @@
         <template #reference>
           <div class="author">
             <i class="icon el-icon-s-custom" />
-            {{ state.userInfo && state.userInfo.nickName || '' }}
+            {{ state.userInfo || '' }}
             <i class="el-icon-caret-bottom" />
           </div>
         </template>
         <div class="nickname">
-          <p>登录名：{{ state.userInfo && state.userInfo.loginUserName || '' }}</p>
+          <p>登录名：{{ state.userInfo || '' }}</p>
           <el-tag size="small" effect="dark" class="logout" @click="logout">退出</el-tag>
         </div>
       </el-popover>
@@ -50,7 +50,7 @@ const state = reactive({
 })
 // 获取用户信息
 const getUserInfo = async () => {
-  const userInfo = await axios.get('/adminUser/profile')
+  const userInfo = await axios.get('/user/username')
   state.userInfo = userInfo
 }
 // 退出登录
